@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b1120">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LeaseLens">
+<title>LeaseLens AI</title>
+<link rel="manifest" href="/leaselens/manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0b1120;
+  --ink-2: #111827;
+  --ink-3: #1a2236;
+  --ink-4: #243049;
+  --border: rgba(255,255,255,.07);
+  --border-2: rgba(255,255,255,.13);
+  --amber: #f59e0b;
+  --amber-2: #fbbf24;
+  --amber-dim: rgba(245,158,11,.12);
+  --amber-glow: rgba(245,158,11,.06);
+  --text: #f3f4f6;
+  --text-2: #9ca3af;
+  --text-3: #4b5563;
+  --green: #10b981;
+  --green-dim: rgba(16,185,129,.1);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,.1);
+  --orange: #f97316;
+  --orange-dim: rgba(249,115,22,.1);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59,130,246,.1);
+  --font-d: 'DM Serif Display', Georgia, serif;
+  --font-b: 'DM Sans', system-ui, sans-serif;
+  --radius: 8px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: var(--font-b); background: var(--ink); color: var(--text); min-height: 100dvh; font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--ink-4); border-radius: 99px; }
+
+/* ── GATE ── */
+#gate { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+.gate-wrap { max-width: 400px; width: 100%; }
+.gate-logo { font-family: var(--font-d); font-size: 32px; color: var(--text); text-align: center; margin-bottom: 4px; }
+.gate-logo em { font-style: italic; color: var(--amber); }
+.gate-tagline { font-size: 13px; color: var(--text-3); text-align: center; margin-bottom: 32px; }
+.gate-card { background: var(--ink-2); border: 1px solid var(--border-2); border-radius: var(--radius-xl); padding: 32px; }
+.gate-card h2 { font-size: 16px; font-weight: 500; margin-bottom: 16px; }
+.gate-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.g-in { flex: 1; padding: 10px 12px; background: var(--ink-3); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--font-b); font-size: 13px; outline: none; transition: border-color .15s; letter-spacing: .04em; }
+.g-in:focus { border-color: var(--amber); }
+.g-in::placeholder { color: var(--text-3); letter-spacing: 0; }
+.btn-a { padding: 10px 18px; background: var(--amber); color: var(--ink); border: none; border-radius: var(--radius); font-family: var(--font-b); font-size: 13px; font-weight: 500; cursor: pointer; transition: background .15s; white-space: nowrap; }
+.btn-a:hover { background: var(--amber-2); }
+.btn-a:disabled { opacity: .5; cursor: not-allowed; }
+.gate-err { font-size: 12px; color: var(--red); margin-bottom: 10px; display: none; }
+.gate-demo { font-size: 12px; color: var(--text-3); text-align: center; margin-top: 14px; }
+.gate-demo code { background: var(--ink-3); border: 1px solid var(--border); padding: 2px 6px; border-radius: 4px; color: var(--amber); font-size: 11px; }
+.gate-link { font-size: 12px; color: var(--text-2); text-align: center; margin-top: 10px; }
+.gate-link a { color: var(--amber); text-decoration: none; }
+
+/* ── LAYOUT ── */
+#app { display: none; }
+.layout { display: flex; min-height: 100dvh; }
+.sidebar { width: 224px; flex-shrink: 0; background: var(--ink-2); border-right: 1px solid var(--border); padding: calc(var(--safe-top) + 18px) 0 calc(var(--safe-bottom) + 18px); display: flex; flex-direction: column; position: sticky; top: 0; height: 100dvh; }
+.sb-logo { font-family: var(--font-d); font-size: 18px; color: var(--text); padding: 0 18px 20px; border-bottom: 1px solid var(--border); }
+.sb-logo em { font-style: italic; color: var(--amber); }
+.sb-nav { flex: 1; padding: 14px 8px; }
+.sb-item { display: flex; align-items: center; gap: 9px; padding: 9px 11px; border-radius: var(--radius); font-size: 13px; color: var(--text-2); cursor: pointer; transition: all .15s; margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left; font-family: var(--font-b); }
+.sb-item:hover { background: var(--ink-3); color: var(--text); }
+.sb-item.active { background: var(--amber-dim); color: var(--amber); }
+.sb-ic { font-size: 15px; width: 18px; flex-shrink: 0; }
+.sb-section { font-size: 10px; font-weight: 500; color: var(--text-3); text-transform: uppercase; letter-spacing: .1em; padding: 10px 18px 4px; }
+.sb-foot { padding: 14px 18px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-3); }
+.sb-foot strong { display: block; color: var(--text-2); font-size: 13px; }
+.main { flex: 1; min-width: 0; padding: calc(var(--safe-top) + 22px) 28px calc(var(--safe-bottom) + 28px); overflow-y: auto; }
+.page { display: none; }
+.page.active { display: block; }
+.page-head { margin-bottom: 22px; }
+.page-title { font-family: var(--font-d); font-size: 26px; color: var(--text); margin-bottom: 4px; }
+.page-sub { font-size: 13px; color: var(--text-2); }
+
+/* Mobile nav */
+.mob-nav { display: none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--ink-2); border-top: 1px solid var(--border); padding: 6px 0 calc(var(--safe-bottom) + 6px); z-index: 100; }
+.mob-inner { display: flex; justify-content: space-around; }
+.mob-item { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 10px; font-size: 10px; color: var(--text-3); cursor: pointer; transition: color .15s; background: none; border: none; font-family: var(--font-b); }
+.mob-item.active { color: var(--amber); }
+.mob-icon { font-size: 18px; }
+@media (max-width: 700px) { .sidebar { display: none; } .mob-nav { display: block; } .main { padding: 16px 14px calc(var(--safe-bottom) + 74px); } }
+
+/* ── CARDS ── */
+.card { background: var(--ink-2); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 14px; }
+.card-head { font-size: 11px; font-weight: 500; color: var(--text-3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
+.field { margin-bottom: 12px; }
+.field label { display: block; font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 5px; }
+.field input, .field textarea, .field select { width: 100%; padding: 9px 11px; background: var(--ink-3); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--font-b); font-size: 13px; outline: none; transition: border-color .15s; }
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--amber); }
+.field input::placeholder, .field textarea::placeholder { color: var(--text-3); }
+.field textarea { resize: vertical; }
+.field select option { background: var(--ink-3); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.btn { padding: 8px 16px; border-radius: var(--radius); font-family: var(--font-b); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; }
+.btn-amber { background: var(--amber); color: var(--ink); border: none; }
+.btn-amber:hover { background: var(--amber-2); }
+.btn-amber:disabled { opacity: .5; cursor: not-allowed; }
+.btn-ghost { background: var(--ink-3); color: var(--text-2); border: 1px solid var(--border-2); }
+.btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
+.btn-full { width: 100%; justify-content: center; padding: 11px; font-size: 14px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 900px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+/* ── STAT ── */
+.stat { background: var(--ink-3); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; }
+.stat-label { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+.stat-val { font-family: var(--font-d); font-size: 24px; color: var(--text); line-height: 1; margin-bottom: 3px; }
+.stat-sub { font-size: 11px; color: var(--text-3); }
+.stat-a .stat-val { color: var(--amber); }
+.stat-g .stat-val { color: var(--green); }
+.stat-r .stat-val { color: var(--red); }
+
+/* ── RISK FLAGS ── */
+.risk-flag { display: flex; gap: 10px; padding: 10px 12px; border-radius: var(--radius); margin-bottom: 6px; font-size: 13px; border: 1px solid; }
+.risk-critical { background: var(--red-dim); border-color: rgba(239,68,68,.25); color: var(--red); }
+.risk-high { background: var(--orange-dim); border-color: rgba(249,115,22,.2); color: var(--orange); }
+.risk-medium { background: rgba(245,158,11,.08); border-color: rgba(245,158,11,.2); color: var(--amber); }
+.risk-low { background: var(--blue-dim); border-color: rgba(59,130,246,.2); color: var(--blue); }
+.risk-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; margin-top: 4px; }
+.risk-body { flex: 1; }
+.risk-clause { font-weight: 500; margin-bottom: 2px; }
+.risk-finding { font-size: 12px; opacity: .9; margin-bottom: 2px; }
+.risk-rec { font-size: 11px; opacity: .7; }
+
+/* ── ABSTRACT RESULT ── */
+.abstract-section { margin-bottom: 20px; }
+.abstract-section-title { font-size: 11px; font-weight: 500; color: var(--amber); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.data-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 7px 0; border-bottom: 1px solid var(--border); gap: 20px; }
+.data-row:last-child { border-bottom: none; }
+.dr-key { font-size: 12px; color: var(--text-3); flex-shrink: 0; min-width: 160px; }
+.dr-val { font-size: 13px; color: var(--text); text-align: right; font-weight: 500; }
+.dr-val.null-val { color: var(--text-3); font-weight: 400; font-style: italic; }
+.dr-val.favorable { color: var(--green); }
+.dr-val.unfavorable { color: var(--red); }
+.confidence-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; padding: 3px 10px; border-radius: 99px; font-weight: 500; }
+.conf-high { background: var(--green-dim); color: var(--green); }
+.conf-medium { background: var(--amber-dim); color: var(--amber); }
+.conf-low { background: var(--red-dim); color: var(--red); }
+
+/* ── COMPARE ── */
+.compare-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+@media (max-width: 600px) { .compare-cols { grid-template-columns: 1fr; } }
+.compare-col { background: var(--ink-3); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; }
+.compare-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
+.fav-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 2px 9px; border-radius: 99px; font-weight: 500; }
+.fav-tenant { background: var(--green-dim); color: var(--green); }
+.fav-landlord { background: var(--red-dim); color: var(--red); }
+.fav-tied { background: var(--blue-dim); color: var(--blue); }
+
+/* ── LOI ── */
+.loi-text { background: var(--ink-3); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; font-size: 13px; line-height: 1.8; color: var(--text-2); white-space: pre-wrap; font-family: 'Georgia', serif; }
+.loi-text strong { color: var(--text); }
+
+/* ── CHAT ── */
+.chat-wrap { display: flex; flex-direction: column; height: calc(100dvh - 180px); min-height: 340px; }
+.chat-msgs { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: var(--ink-2); border: 1px solid var(--border); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+.bubble { max-width: 82%; }
+.b-u { align-self: flex-end; }
+.b-a { align-self: flex-start; }
+.bubble-c { padding: 11px 14px; border-radius: var(--radius-lg); font-size: 13px; line-height: 1.65; }
+.b-u .bubble-c { background: var(--amber); color: var(--ink); border-radius: var(--radius-lg) var(--radius-lg) 3px var(--radius-lg); }
+.b-a .bubble-c { background: var(--ink-3); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 3px; white-space: pre-wrap; }
+.bubble-meta { font-size: 10px; color: var(--text-3); margin-top: 3px; padding: 0 3px; }
+.b-u .bubble-meta { text-align: right; }
+.typing-dots span { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--text-3); margin: 0 2px; animation: td .8s ease-in-out infinite; }
+.typing-dots span:nth-child(2) { animation-delay: .16s; }
+.typing-dots span:nth-child(3) { animation-delay: .32s; }
+@keyframes td { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-5px)} }
+.chat-in-row { display: flex; gap: 8px; padding: 10px; background: var(--ink-3); border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+.chat-input { flex: 1; padding: 9px 12px; background: var(--ink-2); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: var(--font-b); font-size: 13px; outline: none; transition: border-color .15s; resize: none; max-height: 100px; }
+.chat-input:focus { border-color: var(--amber); }
+.chat-input::placeholder { color: var(--text-3); }
+.quick-chips { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
+.chip { padding: 5px 11px; border-radius: 99px; background: var(--ink-3); border: 1px solid var(--border-2); font-size: 11px; color: var(--text-2); cursor: pointer; transition: all .15s; font-family: var(--font-b); }
+.chip:hover { border-color: var(--amber); color: var(--amber); }
+
+/* ── UTILS ── */
+.spinner { width: 16px; height: 16px; border: 2px solid rgba(245,158,11,.3); border-top-color: var(--amber); border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.load-card { display: flex; align-items: center; gap: 12px; padding: 18px; background: var(--ink-2); border: 1px solid var(--border); border-radius: var(--radius-lg); font-size: 13px; color: var(--text-2); }
+.copy-wrap { position: relative; }
+.copy-btn { position: absolute; top: 8px; right: 8px; padding: 3px 9px; background: var(--ink-4); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-3); font-size: 11px; cursor: pointer; font-family: var(--font-b); transition: all .15s; }
+.copy-btn:hover { color: var(--amber); border-color: var(--amber); }
+.result-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<!-- GATE -->
+<div id="gate">
+  <div class="gate-wrap">
+    <div class="gate-logo">Lease<em>Lens</em> AI</div>
+    <div class="gate-tagline">See every clause. Know every risk. Own every negotiation.</div>
+    <div class="gate-card">
+      <h2>Enter your license key</h2>
+      <div class="gate-row">
+        <input class="g-in" type="text" id="key-in" placeholder="LL-XXXX-XXXXXXXX" autocapitalize="characters" spellcheck="false" autocomplete="off">
+        <button class="btn-a" id="act-btn" onclick="activate()">Activate</button>
+      </div>
+      <div class="gate-err" id="gate-err">Invalid key. Check your purchase confirmation email.</div>
+      <p class="gate-link">No key? <a href="https://leaselens.gumroad.com" target="_blank">Get LeaseLens AI →</a></p>
+      <p class="gate-demo">Demo: <code>LL-DEMO-00000000</code></p>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="sb-logo">Lease<em>Lens</em></div>
+      <div class="sb-nav">
+        <div class="sb-section">Modules</div>
+        <button class="sb-item active" onclick="nav('abstract')"><span class="sb-ic">📄</span> Lease abstraction</button>
+        <button class="sb-item" onclick="nav('compare')"><span class="sb-ic">⇆</span> Clause compare</button>
+        <button class="sb-item" onclick="nav('loi')"><span class="sb-ic">✍</span> LOI drafter</button>
+        <button class="sb-item" onclick="nav('assistant')"><span class="sb-ic">✦</span> Market assistant</button>
+      </div>
+      <div class="sb-foot">
+        <strong id="sb-name">Loading...</strong>
+        <span id="sb-tier"></span>
+      </div>
+    </nav>
+
+    <main class="main">
+
+      <!-- ── LEASE ABSTRACTION ── -->
+      <div class="page active" id="page-abstract">
+        <div class="page-head">
+          <div class="page-title">Lease abstraction</div>
+          <div class="page-sub">Paste any commercial lease text — get a structured abstract with risk flags and negotiation intelligence in seconds.</div>
+        </div>
+        <div class="card">
+          <div class="field">
+            <label>Property context (optional — helps with accuracy)</label>
+            <input type="text" id="ab-ctx" placeholder="E.g.: 15,000 RSF retail strip center, NNN, Phoenix AZ, 2024 construction">
+          </div>
+          <div class="field">
+            <label>Paste lease text (full or sections)</label>
+            <textarea id="ab-text" rows="10" placeholder="Paste the full lease document or key sections here. LeaseLens will extract all critical terms, financial data, options, and flag risks...&#10;&#10;The more text you provide, the more complete the abstraction. You can paste individual sections for targeted analysis."></textarea>
+          </div>
+          <button class="btn btn-amber btn-full" id="ab-btn" onclick="runAbstract()">Abstract this lease →</button>
+        </div>
+        <div id="ab-result"></div>
+      </div>
+
+      <!-- ── CLAUSE COMPARE ── -->
+      <div class="page" id="page-compare">
+        <div class="page-head">
+          <div class="page-title">Clause compare</div>
+          <div class="page-sub">Compare two lease clauses side by side — get tenant vs. landlord advantage analysis and negotiation recommendations.</div>
+        </div>
+        <div class="card">
+          <div class="field">
+            <label>Clause type</label>
+            <select id="cmp-type">
+              <option>Rent escalation</option>
+              <option>Renewal option</option>
+              <option>Termination right</option>
+              <option>Assignment and subletting</option>
+              <option>CAM / operating expenses</option>
+              <option>Personal guarantee</option>
+              <option>Co-tenancy</option>
+              <option>Permitted use</option>
+              <option>TI allowance</option>
+              <option>Holdover</option>
+              <option>SNDA</option>
+              <option>Force majeure</option>
+              <option>Default cure periods</option>
+              <option>ROFR / ROFO</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="compare-cols">
+            <div>
+              <div class="field"><label>Lease A label</label><input type="text" id="cmp-la" placeholder="E.g.: 123 Main St offer"></div>
+              <div class="field"><label>Lease A — clause text</label><textarea id="cmp-a" rows="6" placeholder="Paste clause from Lease A..."></textarea></div>
+            </div>
+            <div>
+              <div class="field"><label>Lease B label</label><input type="text" id="cmp-lb" placeholder="E.g.: Counter-proposal"></div>
+              <div class="field"><label>Lease B — clause text</label><textarea id="cmp-b" rows="6" placeholder="Paste clause from Lease B..."></textarea></div>
+            </div>
+          </div>
+          <button class="btn btn-amber btn-full" id="cmp-btn" onclick="runCompare()">Compare these clauses →</button>
+        </div>
+        <div id="cmp-result"></div>
+      </div>
+
+      <!-- ── LOI DRAFTER ── -->
+      <div class="page" id="page-loi">
+        <div class="page-head">
+          <div class="page-title">LOI drafter</div>
+          <div class="page-sub">Enter deal terms — get a complete professional Letter of Intent ready for negotiation.</div>
+        </div>
+        <div class="card">
+          <div class="field-row">
+            <div class="field"><label>Landlord name</label><input type="text" id="loi-ll" placeholder="ABC Properties LLC"></div>
+            <div class="field"><label>Tenant name</label><input type="text" id="loi-ten" placeholder="XYZ Corporation"></div>
+          </div>
+          <div class="field"><label>Property address and suite</label><input type="text" id="loi-prop" placeholder="1234 Commerce Blvd, Suite 300, Phoenix AZ 85001"></div>
+          <div class="field-row">
+            <div class="field"><label>Rentable sq ft</label><input type="number" id="loi-rsf" placeholder="5,000"></div>
+            <div class="field"><label>Lease term (months)</label><input type="number" id="loi-term" placeholder="60"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Base rent ($/SF/year)</label><input type="number" id="loi-rent" placeholder="28.50" step="0.01"></div>
+            <div class="field"><label>Escalations</label><input type="text" id="loi-esc" placeholder="3% annually"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>OpEx structure</label><select id="loi-opex"><option>NNN</option><option>Modified Gross</option><option>Full Service / Gross</option><option>Gross with base year</option></select></div>
+            <div class="field"><label>Security deposit</label><input type="text" id="loi-dep" placeholder="$15,000 (2 months)"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>TI allowance ($/SF)</label><input type="number" id="loi-ti" placeholder="45.00" step="0.01"></div>
+            <div class="field"><label>Free rent (months)</label><input type="number" id="loi-free" placeholder="3"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label>Commencement date</label><input type="date" id="loi-start"></div>
+            <div class="field"><label>Renewal options</label><input type="text" id="loi-renewal" placeholder="2 × 5-year at market rate"></div>
+          </div>
+          <div class="field"><label>Permitted use</label><input type="text" id="loi-use" placeholder="General office use and related purposes"></div>
+          <div class="field"><label>Special terms or contingencies</label><textarea id="loi-notes" rows="2" placeholder="Parking, signage, termination options, contingencies..."></textarea></div>
+          <button class="btn btn-amber btn-full" id="loi-btn" onclick="runLOI()">Draft LOI →</button>
+        </div>
+        <div id="loi-result"></div>
+      </div>
+
+      <!-- ── MARKET ASSISTANT ── -->
+      <div class="page" id="page-assistant">
+        <div class="page-head">
+          <div class="page-title">Market assistant</div>
+          <div class="page-sub">Expert guidance on CRE lease structures, negotiations, market conditions, and deal analysis.</div>
+        </div>
+        <div class="quick-chips">
+          <button class="chip" onclick="setQ('What is the difference between a NNN lease and a modified gross lease?')">NNN vs modified gross</button>
+          <button class="chip" onclick="setQ('How do I negotiate a co-tenancy clause for a retail lease?')">Co-tenancy negotiation</button>
+          <button class="chip" onclick="setQ('What is a fair TI allowance for office space in 2026?')">TI allowance guidance</button>
+          <button class="chip" onclick="setQ('How do I structure a personal guarantee burn-off provision?')">Guarantee burn-off</button>
+          <button class="chip" onclick="setQ('What are the red flags to look for in a CAM reconciliation?')">CAM red flags</button>
+          <button class="chip" onclick="setQ('How do I calculate effective rent per square foot?')">Effective rent calc</button>
+        </div>
+        <div class="chat-wrap">
+          <div class="chat-msgs" id="chat-msgs">
+            <div class="bubble b-a"><div class="bubble-c">Welcome to LeaseLens AI. I'm your commercial real estate lease intelligence assistant — ask me anything about lease structures, negotiations, market conditions, financial analysis, or deal structuring. What are you working on?</div><div class="bubble-meta">LeaseLens AI</div></div>
+          </div>
+          <div class="chat-in-row">
+            <textarea class="chat-input" id="chat-in" placeholder="Ask about lease structures, negotiations, CAM, TI, options, market..." rows="1" onkeydown="chatKey(event)"></textarea>
+            <button class="btn-a btn" id="chat-send" onclick="sendChat()" style="align-self:flex-end;padding:9px 14px">Ask</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- MOBILE NAV -->
+  <nav class="mob-nav">
+    <div class="mob-inner">
+      <button class="mob-item active" onclick="nav('abstract')"><span class="mob-icon">📄</span>Abstract</button>
+      <button class="mob-item" onclick="nav('compare')"><span class="mob-icon">⇆</span>Compare</button>
+      <button class="mob-item" onclick="nav('loi')"><span class="mob-icon">✍</span>LOI</button>
+      <button class="mob-item" onclick="nav('assistant')"><span class="mob-icon">✦</span>AI</button>
+    </div>
+  </nav>
+</div>
+
+<script>
+const API = 'https://leaselens.gridiq.ink'; // Update after deploy
+let licKey = localStorage.getItem('ll_key') || '';
+let licData = safeJSON(localStorage.getItem('ll_data'));
+let qCount = parseInt(localStorage.getItem('ll_q') || '0');
+
+function safeJSON(s) { try { return JSON.parse(s); } catch { return null; } }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmt$(n) { return n != null ? '$' + Number(n).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) : null; }
+function fmtPSF(n) { return n != null ? '$' + Number(n).toFixed(2) + '/SF' : null; }
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (licKey && licData) showApp();
+  document.getElementById('key-in').addEventListener('keydown', e => { if (e.key === 'Enter') activate(); });
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/leaselens/sw.js').catch(() => {});
+});
+
+async function activate() {
+  const raw = document.getElementById('key-in').value.trim().toUpperCase();
+  const errEl = document.getElementById('gate-err');
+  const btn = document.getElementById('act-btn');
+  errEl.style.display = 'none'; btn.textContent = '...'; btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/api/validate-key`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: raw }) });
+    const d = await res.json();
+    if (!d.valid) throw new Error('invalid');
+    licKey = raw; licData = d;
+    localStorage.setItem('ll_key', raw); localStorage.setItem('ll_data', JSON.stringify(d));
+    showApp();
+  } catch(err) {
+    errEl.textContent = err.message === 'invalid' ? 'Invalid key. Check your purchase confirmation email.' : 'Connection error. Try again.';
+    errEl.style.display = 'block';
+    btn.textContent = 'Activate'; btn.disabled = false;
+  }
+}
+
+function showApp() {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('sb-name').textContent = licData?.name || 'Professional';
+  document.getElementById('sb-tier').textContent = (licData?.tier || 'professional') + ' plan';
+}
+
+function nav(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sb-item, .mob-item').forEach(b => b.classList.remove('active'));
+  document.getElementById(`page-${id}`)?.classList.add('active');
+  document.querySelectorAll(`.sb-item, .mob-item`).forEach(b => { if (b.getAttribute('onclick')?.includes(`'${id}'`)) b.classList.add('active'); });
+}
+
+function incQ() { qCount++; localStorage.setItem('ll_q', qCount); }
+
+// ── ABSTRACTION ──
+async function runAbstract() {
+  const text = document.getElementById('ab-text').value.trim();
+  if (!text) { alert('Please paste lease text.'); return; }
+  const btn = document.getElementById('ab-btn');
+  const res = document.getElementById('ab-result');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Abstracting lease...';
+  res.innerHTML = loadCard('Analyzing lease document — extracting all terms, options, and risk flags...');
+  try {
+    const r = await fetch(`${API}/api/abstract`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: licKey, leaseText: text, propertyContext: document.getElementById('ab-ctx').value })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    res.innerHTML = renderAbstract(d.result);
+    incQ();
+  } catch(err) { res.innerHTML = errCard(err.message); }
+  btn.disabled = false; btn.textContent = 'Abstract this lease →';
+}
+
+function renderAbstract(r) {
+  if (!r) return errCard('No result returned');
+  const confClass = r.confidence === 'high' ? 'conf-high' : r.confidence === 'medium' ? 'conf-medium' : 'conf-low';
+  const p = r.parties || {};
+  const t = r.term || {};
+  const f = r.financial || {};
+  const o = r.options || {};
+  const k = r.keyClauses || {};
+  const flags = (r.riskFlags || []);
+  const critCount = flags.filter(f => f.severity === 'critical').length;
+  const highCount = flags.filter(f => f.severity === 'high').length;
+
+  function row(label, val, cls = '') {
+    const display = val != null && val !== '' ? esc(String(val)) : '<span class="null-val">Not found</span>';
+    return `<div class="data-row"><span class="dr-key">${label}</span><span class="dr-val ${cls}">${display}</span></div>`;
+  }
+
+  const renewal = (o.renewal || []).map(r => `${r.term} · ${r.notice} notice · ${r.rent}`).join('; ') || null;
+  const riskHTML = flags.length
+    ? flags.map(f => `
+      <div class="risk-flag risk-${f.severity}">
+        <div class="risk-dot"></div>
+        <div class="risk-body">
+          <div class="risk-clause">${esc(f.clause || '')} <span style="font-size:10px;font-weight:400;opacity:.7">${f.severity.toUpperCase()}</span></div>
+          <div class="risk-finding">${esc(f.finding || '')}</div>
+          <div class="risk-rec">→ ${esc(f.recommendation || '')}</div>
+        </div>
+      </div>`).join('')
+    : '<div style="font-size:13px;color:var(--green)">✓ No significant risk flags identified</div>';
+
+  const strengths = (r.negotiationLeverage?.tenantStrengths || []).map(s => `<li style="font-size:12px;color:var(--text-2);padding:3px 0">✓ ${esc(s)}</li>`).join('');
+  const weaknesses = (r.negotiationLeverage?.tenantWeaknesses || []).map(w => `<li style="font-size:12px;color:var(--text-2);padding:3px 0">⚠ ${esc(w)}</li>`).join('');
+  const keyPoints = (r.negotiationLeverage?.keyNegotiationPoints || []).map(p => `<li style="font-size:12px;color:var(--amber);padding:3px 0">→ ${esc(p)}</li>`).join('');
+
+  return `
+    <!-- Summary header -->
+    <div class="card" style="border-color:rgba(245,158,11,.3);background:var(--amber-glow)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap">
+        <div>
+          <div style="font-family:var(--font-d);font-size:18px;margin-bottom:4px">${esc(p.propertyAddress || 'Address not found')}</div>
+          <div style="font-size:13px;color:var(--text-2)">${esc(p.tenant || '')}${p.suite ? ' · ' + esc(p.suite) : ''}</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <span class="confidence-badge ${confClass}">Confidence: ${r.confidence || '—'}</span>
+          ${critCount ? `<span style="font-size:11px;padding:3px 9px;border-radius:99px;background:var(--red-dim);color:var(--red)">${critCount} critical flag${critCount > 1 ? 's' : ''}</span>` : ''}
+          ${highCount ? `<span style="font-size:11px;padding:3px 9px;border-radius:99px;background:var(--orange-dim);color:var(--orange)">${highCount} high flag${highCount > 1 ? 's' : ''}</span>` : ''}
+        </div>
+      </div>
+      ${r.executiveSummary ? `<div style="margin-top:12px;font-size:13px;color:var(--text-2);line-height:1.65;border-top:1px solid var(--border);padding-top:12px">${esc(r.executiveSummary)}</div>` : ''}
+    </div>
+
+    <!-- Key metrics -->
+    <div class="grid-3" style="margin-bottom:14px">
+      <div class="stat stat-a"><div class="stat-label">Annual base rent</div><div class="stat-val">${fmt$(f.baseRentAnnual) || '—'}</div><div class="stat-sub">${fmtPSF(f.baseRentPerSF) || ''}</div></div>
+      <div class="stat stat-g"><div class="stat-label">Total lease cost</div><div class="stat-val">${fmt$(r.totalLeaseCost) || '—'}</div><div class="stat-sub">${t.termMonths ? t.termMonths + ' months' : ''}</div></div>
+      <div class="stat"><div class="stat-label">TI allowance</div><div class="stat-val">${fmt$(f.tiAllowanceTotal) || '—'}</div><div class="stat-sub">${fmtPSF(f.tiAllowancePSF) || ''}</div></div>
+    </div>
+
+    <!-- Risk flags -->
+    <div class="card">
+      <div class="card-head">Risk flags (${flags.length})</div>
+      ${riskHTML}
+    </div>
+
+    <!-- Parties & Property -->
+    <div class="card">
+      <div class="abstract-section-title">Parties & property</div>
+      ${row('Landlord', p.landlord)}
+      ${row('Tenant', p.tenant)}
+      ${row('Property address', p.propertyAddress)}
+      ${row('Suite / unit', p.suite)}
+      ${row('RSF', f.rsf ? f.rsf.toLocaleString() + ' SF' : null)}
+      ${row('Property type', r.propertyType)}
+    </div>
+
+    <!-- Lease term -->
+    <div class="card">
+      <div class="abstract-section-title">Lease term</div>
+      ${row('Commencement', t.commencement)}
+      ${row('Expiration', t.expiration)}
+      ${row('Rent commencement', t.rentCommencement)}
+      ${row('Lease term', t.termMonths ? t.termMonths + ' months' : null)}
+      ${row('Free rent', f.freeRentMonths ? f.freeRentMonths + ' months (' + (fmt$(f.freeRentValue) || 'est.') + ')' : null)}
+    </div>
+
+    <!-- Financials -->
+    <div class="card">
+      <div class="abstract-section-title">Financial terms</div>
+      ${row('Base rent (annual)', fmt$(f.baseRentAnnual))}
+      ${row('Base rent ($/SF/yr)', fmtPSF(f.baseRentPerSF))}
+      ${row('Base rent (monthly)', fmt$(f.baseRentMonthly))}
+      ${row('Effective rent ($/SF)', fmtPSF(r.effectiveRentPSF))}
+      ${row('Rent escalations', f.escalations)}
+      ${row('OpEx structure', f.opexStructure)}
+      ${row('CAM details', f.camDetails)}
+      ${row('Security deposit', f.securityDeposit)}
+      ${row('TI allowance', f.tiAllowancePSF ? fmtPSF(f.tiAllowancePSF) + ' (' + (fmt$(f.tiAllowanceTotal) || '') + ' total)' : null)}
+    </div>
+
+    <!-- Options -->
+    <div class="card">
+      <div class="abstract-section-title">Options & rights</div>
+      ${row('Renewal options', renewal)}
+      ${row('Termination option', o.termination?.date ? `${o.termination.date} · ${o.termination.penalty || 'penalty TBD'} · ${o.termination.notice || ''} notice` : null)}
+      ${row('Expansion option', o.expansion)}
+      ${row('ROFR', o.rofr)}
+      ${row('ROFO', o.rofo)}
+      ${row('Purchase option', o.purchase)}
+    </div>
+
+    <!-- Key clauses -->
+    <div class="card">
+      <div class="abstract-section-title">Key clauses</div>
+      ${row('Permitted use', k.permittedUse)}
+      ${row('Personal guarantee', k.personalGuarantee)}
+      ${row('Assignment / subletting', k.assignmentSubletting)}
+      ${row('Exclusive use', k.exclusiveUse)}
+      ${row('Co-tenancy', k.coTenancy)}
+      ${row('Holdover rent', k.holdoverRent)}
+      ${row('Parking', k.parking)}
+      ${row('Signage', k.signage)}
+      ${row('HVAC', k.hvac)}
+      ${row('ADA responsibility', k.adaResponsibility)}
+      ${row('SNDA present', k.sndaPresent != null ? (k.sndaPresent ? 'Yes' : 'No') : null)}
+      ${row('Default cure periods', k.defaultCurePeriods)}
+      ${row('CAM audit rights', k.camAuditRights)}
+    </div>
+
+    <!-- Negotiation intelligence -->
+    ${(strengths || weaknesses || keyPoints) ? `
+    <div class="card">
+      <div class="abstract-section-title">Negotiation intelligence</div>
+      <div class="grid-2" style="margin-bottom:10px">
+        ${strengths ? `<div><div class="result-label">Tenant strengths</div><ul style="list-style:none">${strengths}</ul></div>` : ''}
+        ${weaknesses ? `<div><div class="result-label">Areas of exposure</div><ul style="list-style:none">${weaknesses}</ul></div>` : ''}
+      </div>
+      ${keyPoints ? `<div><div class="result-label" style="color:var(--amber)">Key negotiation points</div><ul style="list-style:none">${keyPoints}</ul></div>` : ''}
+    </div>` : ''}`;
+}
+
+// ── CLAUSE COMPARE ──
+async function runCompare() {
+  const a = document.getElementById('cmp-a').value.trim();
+  const b = document.getElementById('cmp-b').value.trim();
+  if (!a || !b) { alert('Please enter both clauses to compare.'); return; }
+  const btn = document.getElementById('cmp-btn');
+  const res = document.getElementById('cmp-result');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Comparing...';
+  res.innerHTML = loadCard('Analyzing clause differences and market positioning...');
+  try {
+    const r = await fetch(`${API}/api/compare`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: licKey, clauseType: document.getElementById('cmp-type').value, leaseA: a, leaseB: b, labelA: document.getElementById('cmp-la').value || 'Lease A', labelB: document.getElementById('cmp-lb').value || 'Lease B' })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    res.innerHTML = renderCompare(d.result);
+    incQ();
+  } catch(err) { res.innerHTML = errCard(err.message); }
+  btn.disabled = false; btn.textContent = 'Compare these clauses →';
+}
+
+function renderCompare(r) {
+  const c = r.comparison || {};
+  const favMap = { A: 'Lease A', B: 'Lease B', tied: 'Tied' };
+  const riskClass = { high: 'risk-critical', medium: 'risk-medium', low: 'risk-low' };
+  const diffs = (c.keyDifferences || []).map(d => `<li style="font-size:13px;color:var(--text-2);padding:5px 0;border-bottom:1px solid var(--border);display:flex;gap:8px"><span style="color:var(--amber);flex-shrink:0">→</span>${esc(d)}</li>`).join('');
+  return `
+    <div class="card">
+      <div class="card-head">${esc(r.clauseType || '')} comparison</div>
+      <div class="compare-cols" style="margin-bottom:16px">
+        <div class="compare-col">
+          <div class="compare-label">${esc(c.leaseA?.split(':')[0] || 'Lease A')}</div>
+          <div style="font-size:13px;color:var(--text-2);line-height:1.6">${esc(c.leaseA || '')}</div>
+          ${c.tenantFavorable === 'A' ? '<div style="margin-top:8px"><span class="fav-badge fav-tenant">Tenant favorable</span></div>' : ''}
+          ${c.landlordFavorable === 'A' ? '<div style="margin-top:8px"><span class="fav-badge fav-landlord">Landlord favorable</span></div>' : ''}
+        </div>
+        <div class="compare-col">
+          <div class="compare-label">${esc(c.leaseB?.split(':')[0] || 'Lease B')}</div>
+          <div style="font-size:13px;color:var(--text-2);line-height:1.6">${esc(c.leaseB || '')}</div>
+          ${c.tenantFavorable === 'B' ? '<div style="margin-top:8px"><span class="fav-badge fav-tenant">Tenant favorable</span></div>' : ''}
+          ${c.landlordFavorable === 'B' ? '<div style="margin-top:8px"><span class="fav-badge fav-landlord">Landlord favorable</span></div>' : ''}
+        </div>
+      </div>
+      ${diffs ? `<div class="result-label" style="margin-bottom:6px">Key differences</div><ul style="list-style:none;margin-bottom:16px">${diffs}</ul>` : ''}
+      <div class="risk-flag ${riskClass[r.riskLevel] || 'risk-low'}" style="margin-bottom:12px">
+        <div class="risk-dot"></div>
+        <div><div class="risk-clause">Market standard</div><div class="risk-finding">${esc(r.marketStandard || '')}</div></div>
+      </div>
+      <div style="background:var(--amber-dim);border:1px solid rgba(245,158,11,.25);border-radius:var(--radius);padding:12px;font-size:13px;color:var(--amber)">
+        <strong>Recommendation:</strong> ${esc(r.recommendation || '')}
+      </div>
+    </div>`;
+}
+
+// ── LOI ──
+async function runLOI() {
+  const btn = document.getElementById('loi-btn');
+  const res = document.getElementById('loi-result');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div> Drafting LOI...';
+  res.innerHTML = loadCard('Drafting professional Letter of Intent...');
+  try {
+    const r = await fetch(`${API}/api/loi`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: licKey, dealTerms: {
+        landlord: document.getElementById('loi-ll').value,
+        tenant: document.getElementById('loi-ten').value,
+        property: document.getElementById('loi-prop').value,
+        rsf: document.getElementById('loi-rsf').value,
+        term: document.getElementById('loi-term').value,
+        baseRent: document.getElementById('loi-rent').value,
+        escalations: document.getElementById('loi-esc').value,
+        opex: document.getElementById('loi-opex').value,
+        deposit: document.getElementById('loi-dep').value,
+        ti: document.getElementById('loi-ti').value,
+        freeRent: document.getElementById('loi-free').value,
+        commencement: document.getElementById('loi-start').value,
+        renewal: document.getElementById('loi-renewal').value,
+        use: document.getElementById('loi-use').value,
+        notes: document.getElementById('loi-notes').value
+      }})
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    res.innerHTML = `
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div class="card-head" style="margin-bottom:0">Letter of Intent</div>
+          <button class="btn btn-ghost" onclick="copyEl('loi-content')">Copy LOI</button>
+        </div>
+        <div class="copy-wrap">
+          <div class="loi-text" id="loi-content">${esc(d.content || '')}</div>
+          <button class="copy-btn" onclick="copyEl('loi-content')">Copy</button>
+        </div>
+      </div>`;
+    incQ();
+  } catch(err) { res.innerHTML = errCard(err.message); }
+  btn.disabled = false; btn.textContent = 'Draft LOI →';
+}
+
+// ── CHAT ──
+function setQ(q) { nav('assistant'); document.getElementById('chat-in').value = q; }
+function chatKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); } }
+
+async function sendChat() {
+  const inp = document.getElementById('chat-in');
+  const q = inp.value.trim();
+  if (!q) return;
+  inp.value = '';
+  addBubble(q, 'u');
+  const typing = addTyping();
+  document.getElementById('chat-send').disabled = true;
+  try {
+    const r = await fetch(`${API}/api/assistant`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: licKey, question: q }) });
+    const d = await r.json();
+    typing.remove();
+    addBubble(d.answer || d.error || 'Error', 'a');
+    incQ();
+  } catch { typing.remove(); addBubble('Connection error. Please try again.', 'a'); }
+  document.getElementById('chat-send').disabled = false;
+  inp.focus();
+}
+
+function addBubble(text, role) {
+  const msgs = document.getElementById('chat-msgs');
+  const div = document.createElement('div');
+  div.className = `bubble b-${role}`;
+  div.innerHTML = `<div class="bubble-c">${esc(text)}</div><div class="bubble-meta">${role === 'a' ? 'LeaseLens AI' : 'You'}</div>`;
+  msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight; return div;
+}
+function addTyping() {
+  const msgs = document.getElementById('chat-msgs');
+  const div = document.createElement('div');
+  div.className = 'bubble b-a';
+  div.innerHTML = '<div class="bubble-c"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+  msgs.appendChild(div); msgs.scrollTop = msgs.scrollHeight; return div;
+}
+
+// ── UTILS ──
+function loadCard(t) { return `<div class="load-card"><div class="spinner"></div><div>${t}</div></div>`; }
+function errCard(m) { return `<div class="card" style="border-color:var(--red-dim)"><div style="color:var(--red)">Error: ${esc(m)}</div></div>`; }
+function copyEl(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  navigator.clipboard.writeText(el.innerText.replace(/^Copy$/, '').trim()).then(() => {
+    el.querySelectorAll('.copy-btn').forEach(b => { b.textContent = 'Copied!'; setTimeout(() => b.textContent = 'Copy', 2000); });
+  });
+}
+</script>
+</body>
+</html>
